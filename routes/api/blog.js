@@ -52,7 +52,22 @@ app.get("/getBlogById/:id", async (req, res) => {
 
 app.get("/getBlogsByTag/:tag", async (req, res) => {
   const tag = req.params["tag"];
-  const tags = ["Action", "Adventure"];
+  const tags = [
+    "national",
+    "state",
+    "crime",
+    "politics",
+    "sports",
+    "business",
+    "employment",
+    "entertainment",
+    "health",
+    "spiritual",
+    "media",
+    "author",
+    "viral",
+    "podcast",
+  ];
   if (!tags.includes(tag)) {
     return res.status(400).json({ message: "Use Correct tag." });
   }
@@ -61,7 +76,9 @@ app.get("/getBlogsByTag/:tag", async (req, res) => {
     const blogs_list = [];
     for await (const blog of blogs_pointer) {
       if (blog.tags.includes(tag)) {
-        blogs_list.push(blog);
+        if (blog.status) {
+          blogs_list.push(blog);
+        }
       }
     }
     res
@@ -73,7 +90,7 @@ app.get("/getBlogsByTag/:tag", async (req, res) => {
   }
 });
 
-app.post("/getAllBlogs",verifyToken, verifyManager, async (req, res) => {
+app.post("/getAllBlogs", verifyToken, verifyManager, async (req, res) => {
   try {
     const blogs_pointer = blogs.find();
     const blogs_list = [];
