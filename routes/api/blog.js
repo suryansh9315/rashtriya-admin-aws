@@ -50,6 +50,23 @@ app.get("/getBlogById/:id", async (req, res) => {
   }
 });
 
+app.get("/getRecent", async (req, res) => {
+  try {
+    const blogs_pointer = blogs.find();
+    const blogs_list = [];
+    for await (const blog of blogs_pointer) {
+      if (blog.status) {
+        blogs_list.push(blog);
+      }
+    }
+    blogs_list.sort((a, b) => b.createdAt - a.createdAt)
+    res.status(200).json({ message: "Found blogs.", result: blogs_list.slice(0,5) });
+  } catch (error) {
+    console.log(error);
+    return res.status(400).json({ message: "Something went wrong" });
+  }
+});
+
 app.get("/getBlogsByTag/:tag", async (req, res) => {
   const tag = req.params["tag"];
   const tags = [
