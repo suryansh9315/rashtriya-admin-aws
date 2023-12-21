@@ -122,11 +122,15 @@ app.post("/getAllBlogs", verifyToken, verifyManager, async (req, res) => {
   }
 });
 
-app.post("/changeBlogStatus", verifyToken, verifyManager, async (req, res) => {
-  if (!req.body.blogId) {
-    return res.status(400).json({ message: "Missing blog ID." });
+app.post("/updateBlog", verifyToken, verifyManager, async (req, res) => {
+  if (!req.body.blogId || !req.body.tags || req.body.status === undefined) {
+    return res
+      .status(400)
+      .json({ message: "Missing fields for updating blog." });
   }
   const blogId = req.body.blogId;
+  const status = req.body.status;
+  const tags = req.body.tags;
   try {
     const query = { _id: new ObjectId(blogId) };
     const old_blog = await blogs.findOne(query);
@@ -135,7 +139,8 @@ app.post("/changeBlogStatus", verifyToken, verifyManager, async (req, res) => {
     }
     const update = {
       $set: {
-        status: !old_blog.status,
+        status,
+        tags
       },
     };
     const options = { upsert: false };
