@@ -6,6 +6,7 @@ const { mongoClient } = require("../../database");
 
 const db = mongoClient.db("news");
 const blogs = db.collection("news-blogs");
+const extras = db.collection("news-extras");
 const app = express.Router();
 
 app.post("/create-blog", verifyToken, verifyManager, async (req, res) => {
@@ -146,6 +147,47 @@ app.post("/changeBlogStatus", verifyToken, verifyManager, async (req, res) => {
       });
     }
     res.status(200).json({ message: "Blog Updated." });
+  } catch (error) {
+    console.log(error);
+    return res.status(400).json({ message: "Something went wrong" });
+  }
+});
+
+app.get("/getYtList", async (req, res) => {
+  try {
+    const query = { title: "yt_carousel_list" };
+    const result = await extras.findOne(query);
+    if (result) {
+      return res.status(200).json({ message: "List found.", list: result.list })
+    }
+    res.status(200).json({ message: "List not found.", list: [] });
+  } catch (error) {
+    console.log(error);
+    return res.status(400).json({ message: "Something went wrong" });
+  }
+});
+
+app.post("/updateYtList", verifyToken, verifyManager, async (req, res) => {
+  if (!req.body.list) {
+    return res.status(400).json({ message: "Missing new list." });
+  }
+  const list = req.body.list;
+  try {
+    const query = { title: "yt_carousel_list" };
+    const update = {
+      $set: {
+        list
+      },
+    };
+    const options = { upsert: false };
+    const result = await extras.updateOne(query, update, options);
+    const { matchedCount, modifiedCount } = result;
+    if (matchedCount !== modifiedCount) {
+      return res.status(400).json({
+        message: "Update went wrong.",
+      });
+    }
+    res.status(200).json({ message: "List Updated." });
   } catch (error) {
     console.log(error);
     return res.status(400).json({ message: "Something went wrong" });
