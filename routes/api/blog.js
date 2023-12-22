@@ -60,8 +60,10 @@ app.get("/getRecent", async (req, res) => {
         blogs_list.push(blog);
       }
     }
-    blogs_list.sort((a, b) => b.createdAt - a.createdAt)
-    res.status(200).json({ message: "Found blogs.", result: blogs_list.slice(0,5) });
+    blogs_list.sort((a, b) => b.createdAt - a.createdAt);
+    res
+      .status(200)
+      .json({ message: "Found blogs.", result: blogs_list.slice(0, 5) });
   } catch (error) {
     console.log(error);
     return res.status(400).json({ message: "Something went wrong" });
@@ -140,7 +142,7 @@ app.post("/updateBlog", verifyToken, verifyManager, async (req, res) => {
     const update = {
       $set: {
         status,
-        tags
+        tags,
       },
     };
     const options = { upsert: false };
@@ -163,7 +165,9 @@ app.get("/getYtList", async (req, res) => {
     const query = { title: "yt_carousel_list" };
     const result = await extras.findOne(query);
     if (result) {
-      return res.status(200).json({ message: "List found.", list: result.list })
+      return res
+        .status(200)
+        .json({ message: "List found.", list: result.list });
     }
     res.status(200).json({ message: "List not found.", list: [] });
   } catch (error) {
@@ -181,7 +185,7 @@ app.post("/updateYtList", verifyToken, verifyManager, async (req, res) => {
     const query = { title: "yt_carousel_list" };
     const update = {
       $set: {
-        list
+        list,
       },
     };
     const options = { upsert: false };
@@ -193,6 +197,31 @@ app.post("/updateYtList", verifyToken, verifyManager, async (req, res) => {
       });
     }
     res.status(200).json({ message: "List Updated." });
+  } catch (error) {
+    console.log(error);
+    return res.status(400).json({ message: "Something went wrong" });
+  }
+});
+
+app.post("/searchBlogs", async (req, res) => {
+  if (!req.body.query) {
+    return res.status(400).json({ message: "Missing query." });
+  }
+  try {
+    const query = req.body.query;
+    const blogs_pointer = blogs.find();
+    const blogs_list = [];
+    for await (const blog of blogs_pointer) {
+      if (
+        blog?.heading?.includes(query) ||
+        blog?.subHeading?.includes(query) ||
+        blog?.text_section_1?.includes(query) ||
+        blog?.text_section_2?.includes(query)
+      ) {
+        blogs_list.push(blog);
+      }
+    }
+    res.status(200).json({ message: "Found blogs.", result: blogs_list });
   } catch (error) {
     console.log(error);
     return res.status(400).json({ message: "Something went wrong" });
