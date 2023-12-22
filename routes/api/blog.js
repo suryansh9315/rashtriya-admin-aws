@@ -212,13 +212,15 @@ app.post("/searchBlogs", async (req, res) => {
     const blogs_pointer = blogs.find();
     const blogs_list = [];
     for await (const blog of blogs_pointer) {
-      if (
-        blog?.heading?.includes(query) ||
-        blog?.subHeading?.includes(query) ||
-        blog?.text_section_1?.includes(query) ||
-        blog?.text_section_2?.includes(query)
-      ) {
-        blogs_list.push(blog);
+      if (blog.status) {
+        if (
+          blog?.heading?.includes(query) ||
+          blog?.subHeading?.includes(query) ||
+          blog?.text_section_1?.includes(query) ||
+          blog?.text_section_2?.includes(query)
+        ) {
+          blogs_list.push(blog);
+        }
       }
     }
     res.status(200).json({ message: "Found blogs.", result: blogs_list });
