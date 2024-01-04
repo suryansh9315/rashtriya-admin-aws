@@ -160,6 +160,26 @@ app.post("/updateBlog", verifyToken, verifyManager, async (req, res) => {
   }
 });
 
+app.post("/deleteBlog", verifyToken, verifyManager, async (req, res) => {
+  if (!req.body.blogId) {
+    return res
+      .status(400)
+      .json({ message: "Missing fields for deleting blog." });
+  }
+  const blogId = req.body.blogId;
+  try {
+    const query = { _id: new ObjectId(blogId) };
+    const old_blog = await blogs.deleteOne(query);
+    if (old_blog.deletedCount !== 1) {
+      return res.status(400).json({ message: "Blog does not exist." });
+    }
+    res.status(200).json({ message: "Blog Deleted." });
+  } catch (error) {
+    console.log(error);
+    return res.status(400).json({ message: "Something went wrong" });
+  }
+});
+
 app.get("/getYtList", async (req, res) => {
   try {
     const query = { title: "yt_carousel_list" };
