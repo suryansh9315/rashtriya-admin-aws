@@ -101,6 +101,7 @@ app.get("/getBlogsByTag/:tag", async (req, res) => {
         }
       }
     }
+    blogs_list.sort((a, b) => b.createdAt - a.createdAt);
     res
       .status(200)
       .json({ message: "Found blogs with this id.", result: blogs_list });
@@ -117,6 +118,7 @@ app.post("/getAllBlogs", verifyToken, verifyManager, async (req, res) => {
     for await (const blog of blogs_pointer) {
       blogs_list.push(blog);
     }
+    blogs_list.sort((a, b) => b.createdAt - a.createdAt);
     res.status(200).json({ message: "Found blogs.", result: blogs_list });
   } catch (error) {
     console.log(error);
@@ -243,6 +245,7 @@ app.post("/searchBlogs", async (req, res) => {
         }
       }
     }
+    blogs_list.sort((a, b) => b.createdAt - a.createdAt);
     res.status(200).json({ message: "Found blogs.", result: blogs_list });
   } catch (error) {
     console.log(error);
